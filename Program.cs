@@ -2,10 +2,6 @@ using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
-using PdfSharp.Pdf;
-using PdfSharp.Pdf.IO;
-using PdfSharp.Drawing;
-using PdfSharp.Pdf.Rendering;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -124,9 +120,8 @@ namespace NumberDetection
 
     /// <summary>
     /// 画像処理プログラム
-    /// 入力された画像またはPDFから数字を検出し、結果を出力する
+    /// 入力された画像から数字を検出し、結果を出力する
     /// 機能:
-    /// - PDFの複数ページ処理（最大50ページ）
     /// - 画像サイズ検証（A3/A4）
     /// - DPI検証（200-600 DPI）
     /// - 数字検出と枠描画
@@ -150,16 +145,6 @@ namespace NumberDetection
         /// 許可される最大DPI
         /// </summary>
         private const int MaxDpi = 600;
-
-        /// <summary>
-        /// PDF変換時のDPI
-        /// </summary>
-        private const int PdfConversionDpi = 300;
-
-        /// <summary>
-        /// PDFの最大ページ数
-        /// </summary>
-        private const int MaxPdfPages = 50;
 
         /// <summary>
         /// 出力ディレクトリ名
@@ -201,7 +186,7 @@ namespace NumberDetection
         /// <summary>
         /// メインエントリーポイント
         /// コマンドライン引数で指定されたファイルを処理する
-        /// PDFの場合はすべてのページ（最大50ページ）を処理し、画像の場合は単一ファイルを処理する
+        /// 画像ファイルを処理する
         /// </summary>
         /// <param name="args">コマンドライン引数（入力ファイルパス）</param>
         static void Main(string[] args)
@@ -309,7 +294,6 @@ namespace NumberDetection
 
         /// <summary>
         /// 入力ファイルを処理する
-        /// PDFの場合はすべてのページ（最大50ページ）を300 DPIで画像に変換し、
         /// 画像の場合はそのままパスをリストにして返す
         /// </summary>
         /// <param name="inputPath">入力ファイルパス</param>
@@ -325,24 +309,11 @@ namespace NumberDetection
 
             string extension = Path.GetExtension(inputPath).ToLower();
 
-            // PDFの場合は画像に変換（すべてのページ）
-            if (extension == ".pdf")
-            {
-                Console.WriteLine("PDFファイルを検出しました。300 DPIで画像に変換します...");
-                List<string>? imagePaths = ConvertPdfToImage(inputPath);
-                if (imagePaths == null || imagePaths.Count == 0)
-                {
-                    Console.WriteLine("PDFの変換に失敗しました");
-                    return null;
-                }
-                return imagePaths;
-            }
-
             // 対応していない形式の場合
             if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
             {
                 Console.WriteLine($"対応していないファイル形式です: {extension}");
-                Console.WriteLine("対応形式: jpg, jpeg, png, pdf");
+                Console.WriteLine("対応形式: jpg, jpeg, png");
                 return null;
             }
 
@@ -395,7 +366,7 @@ namespace NumberDetection
         /// <param name="image">検出対象の画像</param>
         /// <returns>(用紙サイズ, 向き) 検出できない場合は(null, null)</returns>
         static (string? size, string? orientation) DetectPaperSize(Mat image)
-            {
+        {
             // 300 DPI基準の用紙サイズ定義
             var paperSizes = new Dictionary<string, (int portraitWidth, int portraitHeight)>
             {
@@ -493,14 +464,14 @@ namespace NumberDetection
             {
                 // ノイズ除去
                 RemoveNoise(binary, kernel);
-                
+
                 // 輪郭検出
                 using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
                 {
                     FindContours(binary, contours);
                     // 数字の検出と枠描画、検出結果を取得
                     List<DetectedNumber> detectedNumbers = DetectAndDrawNumbers(image, contours);
-                    
+
                     // 画像属性情報を作成
                     ImageAttributes attributes = new ImageAttributes
                     {
@@ -516,7 +487,7 @@ namespace NumberDetection
                         DetectedNumbers = detectedNumbers,
                         ProcessedAt = DateTime.Now
                     };
-                    
+
                     // 結果画像の保存（JSONも保存）
                     SaveResultImage(image, imageIndex, attributes);
                 }
@@ -611,7 +582,7 @@ namespace NumberDetection
                 PrintContourInfo(count, rect);
                 // 枠を描画（緑色、太さ2）
                 CvInvoke.Rectangle(image, rect, new MCvScalar(0, 255, 0), 2);
-                
+
                 // 検出結果をリストに追加
                 double aspectRatio = (double)rect.Height / rect.Width;
                 double area = rect.Width * rect.Height;
@@ -629,7 +600,7 @@ namespace NumberDetection
 
             Console.WriteLine($"========================================");
             Console.WriteLine($"合計検出数: {count} 個");
-            
+
             return detectedNumbers;
         }
 
@@ -693,24 +664,24 @@ namespace NumberDetection
         static void SaveResultImage(Mat image, int imageIndex, ImageAttributes attributes)
         {
             Console.WriteLine("処理中: 結果画像を保存...");
-            
+
             // タイムスタンプを生成（yyyyMMdd_HHmmssfff形式、ミリ秒まで含む）
             string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
-            
+
             // 出力ファイル名を生成（元のファイル名 + タイムスタンプ）
             // 複数画像の場合はインデックスも追加
             string baseFileName = Path.GetFileNameWithoutExtension(attributes.OriginalFileName);
-            string outputFileName = imageIndex == 1 
-                ? $"{baseFileName}_{timestamp}.png" 
+            string outputFileName = imageIndex == 1
+                ? $"{baseFileName}_{timestamp}.png"
                 : $"{baseFileName}_{timestamp}_{imageIndex}.png";
-            
+
             string outputPath = Path.Combine(OutputDirectory, outputFileName);
             attributes.OutputFileName = outputFileName;
-            
+
             // 画像を保存
             CvInvoke.Imwrite(outputPath, image);
             Console.WriteLine($"完了: 枠を描画した画像を保存しました: {outputPath}");
-            
+
             // JSONファイルを保存
             bool jsonSaved = SaveJsonAttributes(attributes);
             if (!jsonSaved)
@@ -731,18 +702,18 @@ namespace NumberDetection
             {
                 // JSONファイルパスを生成（画像ファイルと同じ名前、拡張子は.json）
                 string jsonPath = Path.ChangeExtension(Path.Combine(OutputDirectory, attributes.OutputFileName), ".json");
-                
+
                 // JSONオプション設定（日本語対応、インデント付き）
                 JsonSerializerOptions options = new JsonSerializerOptions
                 {
                     WriteIndented = true,
                     Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
                 };
-                
+
                 // JSONファイルに保存
                 string jsonString = JsonSerializer.Serialize(attributes, options);
                 File.WriteAllText(jsonPath, jsonString);
-                
+
                 Console.WriteLine($"完了: 画像属性を保存しました: {jsonPath}");
                 return true;
             }
@@ -750,105 +721,6 @@ namespace NumberDetection
             {
                 Console.WriteLine($"JSON保存エラー: {ex.Message}");
                 return false;
-            }
-        }
-
-        #endregion
-
-        #region PDF処理
-
-        /// <summary>
-        /// PDFを300 DPIで画像に変換する（すべてのページ）
-        /// 最大50ページまで処理可能
-        /// 変換された画像はoutputディレクトリに保存される
-        /// </summary>
-        /// <param name="pdfPath">PDFファイルパス</param>
-        /// <returns>変換後の画像パスリスト（失敗時はnull）</returns>
-        static List<string>? ConvertPdfToImage(string pdfPath)
-        {
-            try
-            {
-                // PDFドキュメントを開く
-                using (PdfDocument document = PdfReader.Open(pdfPath, PdfDocumentOpenMode.Import))
-                {
-                    // ページチェック
-                    if (document.PageCount == 0)
-                    {
-                        Console.WriteLine("PDFにページがありません");
-                        return null;
-                    }
-
-                    // 最大ページ数チェック（50ページ制限）
-                    if (document.PageCount > MaxPdfPages)
-                    {
-                        Console.WriteLine($"警告: PDFのページ数が{MaxPdfPages}ページを超えています（{document.PageCount}ページ）");
-                        Console.WriteLine($"最初の{MaxPdfPages}ページのみ処理します");
-                    }
-
-                    int pagesToProcess = Math.Min(document.PageCount, MaxPdfPages);
-                    Console.WriteLine($"PDFの{pagesToProcess}ページを処理します...");
-
-                    List<string> imagePaths = new List<string>();
-
-                    // PDFレンダラーの設定（300 DPI）
-                    PdfRenderer renderer = new PdfRenderer(document);
-                    renderer.DpiX = PdfConversionDpi;
-                    renderer.DpiY = PdfConversionDpi;
-
-                    // 各ページをレンダリング
-                    for (int pageIndex = 0; pageIndex < pagesToProcess; pageIndex++)
-                    {
-                        Console.WriteLine($"ページ {pageIndex + 1}/{pagesToProcess} を変換中...");
-
-                        int width = renderer.GetPageWidth(pageIndex);
-                        int height = renderer.GetPageHeight(pageIndex);
-
-                        using (Bitmap bitmap = new Bitmap(width, height))
-                        {
-                            bitmap.SetResolution(PdfConversionDpi, PdfConversionDpi);
-
-                            using (Graphics graphics = Graphics.FromImage(bitmap))
-                            {
-                                graphics.Clear(Color.White);
-                                renderer.RenderPage(graphics, pageIndex);
-                            }
-
-                            // PNGとして保存（ページ番号を含むファイル名）
-                            // 出力ディレクトリを使用
-                            // 例: input.pdf → output/input_page1.png, output/input_page2.png, ...
-                            string outputFileName = $"{Path.GetFileNameWithoutExtension(pdfPath)}_page{pageIndex + 1}.png";
-                            string outputPath = Path.Combine(OutputDirectory, outputFileName);
-                            bitmap.Save(outputPath, ImageFormat.Png);
-                            imagePaths.Add(outputPath);
-                        }
-                    }
-
-                    Console.WriteLine($"PDF変換完了: {pagesToProcess}ページ");
-                    return imagePaths;
-                }
-            }
-            catch (Exception ex)
-            {
-                // エラー時に作成された一時画像をクリーンアップ
-                if (imagePaths != null)
-                {
-                    foreach (var path in imagePaths)
-                    {
-                        try
-                        {
-                            if (File.Exists(path))
-                            {
-                                File.Delete(path);
-                            }
-                        }
-                        catch
-                        {
-                            // 削除失敗は無視
-                        }
-                    }
-                }
-                Console.WriteLine($"PDF変換エラー: {ex.Message}");
-                return null;
             }
         }
 
