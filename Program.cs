@@ -283,8 +283,10 @@ namespace NumberDetection
         /// </summary>
         static void PrintUsage()
         {
-            Console.WriteLine(_resources.GetString("Usage_Instructions"));
-            Console.WriteLine(_resources.GetString("Supported_Formats"));
+            string? usage = _resources.GetString("Usage_Instructions");
+            string? formats = _resources.GetString("Supported_Formats");
+            Console.WriteLine(usage ?? "使用方法: NumberDetection <入力ファイルパス>");
+            Console.WriteLine(formats ?? "対応形式: jpg, jpeg, png, pdf");
         }
 
         /// <summary>
@@ -296,7 +298,8 @@ namespace NumberDetection
             if (!Directory.Exists(OutputDirectory))
             {
                 Directory.CreateDirectory(OutputDirectory);
-                Console.WriteLine(string.Format(_resources.GetString("OutputDirectory_Created"), OutputDirectory));
+                string? message = _resources.GetString("OutputDirectory_Created");
+                Console.WriteLine(message != null ? string.Format(message, OutputDirectory) : $"出力ディレクトリを作成しました: {OutputDirectory}");
             }
         }
 
@@ -313,6 +316,13 @@ namespace NumberDetection
         /// <returns>処理後の画像パスリスト（失敗時はnull）</returns>
         static List<string>? ProcessInputFile(string inputPath)
         {
+            // 入力ファイルの存在チェック
+            if (!File.Exists(inputPath))
+            {
+                Console.WriteLine($"エラー: ファイルが見つかりません: {inputPath}");
+                return null;
+            }
+
             string extension = Path.GetExtension(inputPath).ToLower();
 
             // PDFの場合は画像に変換（すべてのページ）
@@ -380,6 +390,7 @@ namespace NumberDetection
         /// <summary>
         /// 用紙サイズと向きを検出する
         /// 300 DPI基準のA3/A4サイズ（縦/横）と照合する
+        /// 許容誤差±5ピクセルで判定する
         /// </summary>
         /// <param name="image">検出対象の画像</param>
         /// <returns>(用紙サイズ, 向き) 検出できない場合は(null, null)</returns>
@@ -392,14 +403,19 @@ namespace NumberDetection
                 { "A4", (2480, 3508) }
             };
 
+            // 許容誤差（ピクセル）
+            const int tolerance = 5;
+
             // 各用紙サイズと向きをチェック
             foreach (var (paperSize, dimensions) in paperSizes)
             {
-                // 縦向きチェック
-                if (image.Width == dimensions.portraitWidth && image.Height == dimensions.portraitHeight)
+                // 縦向きチェック（許容誤差範囲内）
+                if (Math.Abs(image.Width - dimensions.portraitWidth) <= tolerance &&
+                    Math.Abs(image.Height - dimensions.portraitHeight) <= tolerance)
                     return (paperSize, "縦");
-                // 横向きチェック
-                if (image.Width == dimensions.portraitHeight && image.Height == dimensions.portraitWidth)
+                // 横向きチェック（許容誤差範囲内）
+                if (Math.Abs(image.Width - dimensions.portraitHeight) <= tolerance &&
+                    Math.Abs(image.Height - dimensions.portraitWidth) <= tolerance)
                     return (paperSize, "横");
             }
 
@@ -480,9 +496,8 @@ namespace NumberDetection
                 
                 // 輪郭検出
                 using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
-                using (Mat hierarchy = new Mat())
                 {
-                    FindContours(binary, contours, hierarchy);
+                    FindContours(binary, contours);
                     // 数字の検出と枠描画、検出結果を取得
                     List<DetectedNumber> detectedNumbers = DetectAndDrawNumbers(image, contours);
                     
@@ -553,15 +568,14 @@ namespace NumberDetection
 
         /// <summary>
         /// 輪郭を検出する
-        /// 外輪郭のみを検出し、輪郭の階層構造も取得する
+        /// 外輪郭のみを検出する
         /// </summary>
         /// <param name="binary">二値化画像</param>
         /// <param name="contours">検出された輪郭</param>
-        /// <param name="hierarchy">輪郭の階層構造</param>
-        static void FindContours(Mat binary, VectorOfVectorOfPoint contours, Mat hierarchy)
+        static void FindContours(Mat binary, VectorOfVectorOfPoint contours)
         {
             Console.WriteLine("処理中: 輪郭検出...");
-            CvInvoke.FindContours(binary, contours, hierarchy, RetrType.External, ChainApproxMethod.ChainApproxSimple);
+            CvInvoke.FindContours(binary, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
             Console.WriteLine("完了: 輪郭検出");
         }
 
@@ -680,8 +694,8 @@ namespace NumberDetection
         {
             Console.WriteLine("処理中: 結果画像を保存...");
             
-            // タイムスタンプを生成（yyyyMMdd_HHmmss形式）
-            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            // タイムスタンプを生成（yyyyMMdd_HHmmssfff形式、ミリ秒まで含む）
+            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
             
             // 出力ファイル名を生成（元のファイル名 + タイムスタンプ）
             // 複数画像の場合はインデックスも追加
@@ -698,7 +712,11 @@ namespace NumberDetection
             Console.WriteLine($"完了: 枠を描画した画像を保存しました: {outputPath}");
             
             // JSONファイルを保存
-            SaveJsonAttributes(attributes);
+            bool jsonSaved = SaveJsonAttributes(attributes);
+            if (!jsonSaved)
+            {
+                Console.WriteLine("警告: JSONファイルの保存に失敗しました");
+            }
         }
 
         /// <summary>
@@ -706,7 +724,8 @@ namespace NumberDetection
         /// 日本語対応、インデント付きで保存する
         /// </summary>
         /// <param name="attributes">画像属性情報</param>
-        static void SaveJsonAttributes(ImageAttributes attributes)
+        /// <returns>保存成功の場合はtrue、失敗の場合はfalse</returns>
+        static bool SaveJsonAttributes(ImageAttributes attributes)
         {
             try
             {
@@ -725,10 +744,12 @@ namespace NumberDetection
                 File.WriteAllText(jsonPath, jsonString);
                 
                 Console.WriteLine($"完了: 画像属性を保存しました: {jsonPath}");
+                return true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"JSON保存エラー: {ex.Message}");
+                return false;
             }
         }
 
@@ -808,6 +829,24 @@ namespace NumberDetection
             }
             catch (Exception ex)
             {
+                // エラー時に作成された一時画像をクリーンアップ
+                if (imagePaths != null)
+                {
+                    foreach (var path in imagePaths)
+                    {
+                        try
+                        {
+                            if (File.Exists(path))
+                            {
+                                File.Delete(path);
+                            }
+                        }
+                        catch
+                        {
+                            // 削除失敗は無視
+                        }
+                    }
+                }
                 Console.WriteLine($"PDF変換エラー: {ex.Message}");
                 return null;
             }
