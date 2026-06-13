@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Usage_Instructions" xml:space="preserve">
+    <value>使用方法: NumberDetection.exe &lt;入力ファイルパス&gt;</value>
+  </data>
+  <data name="Supported_Formats" xml:space="preserve">
+    <value>対応形式: jpg, jpeg, png, pdf</value>
+  </data>
+  <data name="OutputDirectory_Created" xml:space="preserve">
+    <value>出力ディレクトリを作成しました: {0}</value>
+  </data>
+  <data name="PDF_Detected" xml:space="preserve">
+    <value>PDFファイルを検出しました。300 DPIで画像に変換します...</value>
+  </data>
+  <data name="PDF_Conversion_Failed" xml:space="preserve">
+    <value>PDFの変換に失敗しました</value>
+  </data>
+  <data name="Unsupported_Format" xml:space="preserve">
+    <value>対応していないファイル形式です: {0}</value>
+  </data>
+  <data name="Total_Images_Processing" xml:space="preserve">
+    <value>
+全{0}枚の画像を処理します...
+</value>
+  </data>
+  <data name="Image_Processing_Header" xml:space="preserve">
+    <value>========================================</value>
+  </data>
+  <data name="Image_Processing_Info" xml:space="preserve">
+    <value>画像 {0}/{1}: {2}</value>
+  </data>
+  <data name="Image_Load_Failed" xml:space="preserve">
+    <value>画像を読み込めませんでした: {0}</value>
+  </data>
+  <data name="Image_Size_Info" xml:space="preserve">
+    <value>画像サイズ: {0} x {1} ピクセル</value>
+  </data>
+  <data name="Detected_Size" xml:space="preserve">
+    <value>検出されたサイズ: {0} {1}</value>
+  </data>
+  <data name="Warning_Invalid_Size" xml:space="preserve">
+    <value>警告: 画像サイズがA3またはA4の標準サイズではありません</value>
+  </data>
+  <data name="Allowed_Sizes_Header" xml:space="preserve">
+    <value>許可されるサイズ:</value>
+  </data>
+  <data name="A3_Portrait_Size" xml:space="preserve">
+    <value>  A3縦: 3508 x 4961 ピクセル</value>
+  </data>
+  <data name="A3_Landscape_Size" xml:space="preserve">
+    <value>  A3横: 4961 x 3508 ピクセル</value>
+  </data>
+  <data name="A4_Portrait_Size" xml:space="preserve">
+    <value>  A4縦: 2480 x 3508 ピクセル</value>
+  </data>
+  <data name="A4_Landscape_Size" xml:space="preserve">
+    <value>  A4横: 3508 x 2480 ピクセル</value>
+  </data>
+  <data name="Image_Resolution_Info" xml:space="preserve">
+    <value>画像解像度: {0:F2} x {1:F2} DPI</value>
+  </data>
+  <data name="Invalid_DPI" xml:space="preserve">
+    <value>取り扱えないDPIです: {0:F2} x {1:F2} DPI</value>
+  </data>
+  <data name="Allowed_DPI_Range" xml:space="preserve">
+    <value>許可されるDPI範囲: {0} - {1} DPI</value>
+  </data>
+  <data name="DPI_Check_OK" xml:space="preserve">
+    <value>DPIチェック: OK（範囲内: {0} - {1} DPI）</value>
+  </data>
+  <data name="Processing_Grayscale" xml:space="preserve">
+    <value>処理中: グレースケール変換...</value>
+  </data>
+  <data name="Completed_Grayscale" xml:space="preserve">
+    <value>完了: グレースケール変換</value>
+  </data>
+  <data name="Processing_Threshold" xml:space="preserve">
+    <value>処理中: 二値化...</value>
+  </data>
+  <data name="Completed_Threshold" xml:space="preserve">
+    <value>完了: 二値化</value>
+  </data>
+  <data name="Processing_NoiseRemoval" xml:space="preserve">
+    <value>処理中: ノイズ除去...</value>
+  </data>
+  <data name="Completed_NoiseRemoval" xml:space="preserve">
+    <value>完了: ノイズ除去</value>
+  </data>
+  <data name="Processing_ContourDetection" xml:space="preserve">
+    <value>処理中: 輪郭検出...</value>
+  </data>
+  <data name="Completed_ContourDetection" xml:space="preserve">
+    <value>完了: 輪郭検出</value>
+  </data>
+  <data name="Detected_Numbers_Header" xml:space="preserve">
+    <value>
+検出された数字の枠情報:
+</value>
+  </data>
+  <data name="Number_Info" xml:space="preserve">
+    <value>数字 {0}:</value>
+  </data>
+  <data name="Coordinate_X" xml:space="preserve">
+    <value>  左上X座標: {0} ピクセル</value>
+  </data>
+  <data name="Coordinate_Y" xml:space="preserve">
+    <value>  左上Y座標: {0} ピクセル</value>
+  </data>
+  <data name="Size_Width" xml:space="preserve">
+    <value>  横サイズ（幅）: {0} ピクセル</value>
+  </data>
+  <data name="Size_Height" xml:space="preserve">
+    <value>  縦サイズ（高さ）: {0} ピクセル</value>
+  </data>
+  <data name="Area_Info" xml:space="preserve">
+    <value>  面積: {0} ピクセル²</value>
+  </data>
+  <data name="AspectRatio_Info" xml:space="preserve">
+    <value>  アスペクト比: {0:F2}</value>
+  </data>
+  <data name="Total_Detected_Count" xml:space="preserve">
+    <value>合計検出数: {0} 個</value>
+  </data>
+  <data name="Processing_SaveResult" xml:space="preserve">
+    <value>処理中: 結果画像を保存...</value>
+  </data>
+  <data name="Completed_SaveResult" xml:space="preserve">
+    <value>完了: 枠を描画した画像を保存しました: {0}</value>
+  </data>
+  <data name="Completed_SaveJson" xml:space="preserve">
+    <value>完了: 画像属性を保存しました: {0}</value>
+  </data>
+  <data name="JSON_Save_Error" xml:space="preserve">
+    <value>JSON保存エラー: {0}</value>
+  </data>
+  <data name="PDF_No_Pages" xml:space="preserve">
+    <value>PDFにページがありません</value>
+  </data>
+  <data name="PDF_Page_Exceed_Limit" xml:space="preserve">
+    <value>警告: PDFのページ数が{0}ページを超えています（{1}ページ）</value>
+  </data>
+  <data name="PDF_Process_First_Pages" xml:space="preserve">
+    <value>最初の{0}ページのみ処理します</value>
+  </data>
+  <data name="PDF_Processing_Pages" xml:space="preserve">
+    <value>PDFの{0}ページを処理します...</value>
+  </data>
+  <data name="PDF_Page_Converting" xml:space="preserve">
+    <value>ページ {0}/{1} を変換中...</value>
+  </data>
+  <data name="PDF_Conversion_Completed" xml:space="preserve">
+    <value>PDF変換完了: {0}ページ</value>
+  </data>
+  <data name="PDF_Conversion_Error" xml:space="preserve">
+    <value>PDF変換エラー: {0}</value>
+  </data>
+  <data name="Error_Occurred" xml:space="preserve">
+    <value>エラーが発生しました: {0}</value>
+  </data>
+  <data name="All_Images_Completed" xml:space="preserve">
+    <value>全{0}枚の画像の処理が完了しました</value>
+  </data>
+</root>
